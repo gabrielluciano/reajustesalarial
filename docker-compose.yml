@@ -1,0 +1,15 @@
+services:
+  database:
+    image: postgres:16.2
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: spring
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: reajustesalarial
+    volumes:
+      - ./ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+      - reajustesalarial_data:/var/lib/postgresql/data
+
+volumes:
+  reajustesalarial_data:
