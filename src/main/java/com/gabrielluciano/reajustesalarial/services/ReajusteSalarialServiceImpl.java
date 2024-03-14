@@ -5,9 +5,11 @@ import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
 import com.gabrielluciano.reajustesalarial.models.Funcionario;
 import com.gabrielluciano.reajustesalarial.repositories.FuncionarioRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class ReajusteSalarialServiceImpl implements ReajusteSalarialService {
 
     private final FuncionarioRepository funcionarioRepository;
