@@ -22,7 +22,7 @@ public class Funcionario {
 
     @Column(nullable = false)
     private String nome;
-    @Column(nullable = false, unique = true, length = 11)
+    @Column(nullable = false, unique = true, length = 14)
     private String cpf;
     @Column(length = 20)
     private String telefone;

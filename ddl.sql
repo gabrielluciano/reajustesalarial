@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS enderecos (
 
 CREATE TABLE funcionarios (
     id BIGINT PRIMARY KEY,
-    cpf VARCHAR(11) NOT NULL,
+    cpf VARCHAR(14) NOT NULL,
     data_nascimento DATE NOT NULL,
     nome VARCHAR(255) NOT NULL,
     salario NUMERIC(10,2) NOT NULL,
