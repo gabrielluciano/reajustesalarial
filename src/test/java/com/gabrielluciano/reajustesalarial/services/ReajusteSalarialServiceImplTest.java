@@ -1,6 +1,5 @@
 package com.gabrielluciano.reajustesalarial.services;
 
-import com.gabrielluciano.reajustesalarial.dto.EnderecoRequest;
 import com.gabrielluciano.reajustesalarial.dto.FuncionarioRequest;
 import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
 import com.gabrielluciano.reajustesalarial.models.Funcionario;
@@ -12,9 +11,9 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import com.gabrielluciano.reajustesalarial.util.FuncionarioCreator;
+import com.gabrielluciano.reajustesalarial.util.FuncionarioRequestCreator;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,41 +28,15 @@ class ReajusteSalarialServiceImplTest {
     @Mock
     FuncionarioRepository funcionarioRepository;
 
-    Funcionario funcionario;
-    FuncionarioRequest funcionarioRequest;
-
     @BeforeEach
     void setUp() {
         reajusteSalarialService = new ReajusteSalarialServiceImpl(funcionarioRepository, new ModelMapper());
-
-        EnderecoRequest er = new EnderecoRequest();
-        er.setCep("12345678912");
-        er.setPais("Brasil");
-        er.setEstado("Rio de Janeiro");
-        er.setCidade("Rio de Janeiro");
-        er.setLogradouro("Rua A, bairro B");
-        er.setNumero("12A");
-        er.setComplemento("Complemento");
-
-        FuncionarioRequest fr = new FuncionarioRequest();
-        fr.setCpf("12345678912");
-        fr.setNome("Nome Funcionario");
-        fr.setSalario(new BigDecimal("3000.01"));
-        fr.setTelefone("5510999999999");
-        fr.setDataNascimento(LocalDate.parse("1996-10-21"));
-        fr.setEndereco(er);
-
-        funcionarioRequest = fr;
-
-        ModelMapper modelMapper = new ModelMapper();
-        funcionario = modelMapper.map(funcionarioRequest, Funcionario.class);
-        funcionario.setId(1L);
-        funcionario.getEndereco().setId(1L);
     }
 
     @Test
     void givenFuncionarioRequest_whenCadastrarFuncionario_ThenReturnId() {
-        long expectedId = funcionario.getId();
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        FuncionarioRequest funcionarioRequest = FuncionarioRequestCreator.createFromFuncionario(funcionario);
         when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.empty());
         when(funcionarioRepository.save(ArgumentMatchers.any()))
@@ -71,11 +44,13 @@ class ReajusteSalarialServiceImplTest {
 
         long id = reajusteSalarialService.cadastrarFuncionario(funcionarioRequest);
 
-        assertEquals(expectedId, id);
+        assertEquals(funcionario.getId(), id);
     }
 
     @Test
     void givenFuncionarioRequestWithDuplicatedCpf_whenCadastrarFuncionario_thenThrowsException() {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        FuncionarioRequest funcionarioRequest = FuncionarioRequestCreator.createFromFuncionario(funcionario);
         when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.of(funcionario));
 
