@@ -4,6 +4,8 @@ import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -31,6 +34,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers, HttpStatus status,
+                                                                  WebRequest request) {
+
+        ServletWebRequest servletWebRequest = (ServletWebRequest) request;
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.builder()
+                        .error(convertFieldErrorsToString(ex.getFieldErrors()))
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .path(servletWebRequest.getRequest().getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
                                                              HttpStatus status, WebRequest request) {
 
@@ -43,5 +62,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                         .path(servletWebRequest.getRequest().getRequestURI())
                         .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
                         .build());
+    }
+
+    private String convertFieldErrorsToString(List<FieldError> fieldErrors) {
+        String[] errors = new String[fieldErrors.size()];
+        int i = 0;
+        for (FieldError fieldError : fieldErrors) {
+            errors[i] = String.format("%s: %s", fieldError.getField(), fieldError.getDefaultMessage());
+            i++;
+        }
+        return "Constraint Violation(s): " + String.join(", ", errors);
     }
 }

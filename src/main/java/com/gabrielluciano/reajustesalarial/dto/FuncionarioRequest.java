@@ -3,9 +3,12 @@ package com.gabrielluciano.reajustesalarial.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.gabrielluciano.reajustesalarial.util.constraintvalidators.CpfConstraint;
+
 public class FuncionarioRequest {
 
     private String nome;
+    @CpfConstraint
     private String cpf;
     private String telefone;
     private LocalDate dataNascimento;

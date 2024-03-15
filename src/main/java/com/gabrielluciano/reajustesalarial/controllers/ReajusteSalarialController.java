@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/reajustesalarial")
 public class ReajusteSalarialController {
@@ -20,7 +22,7 @@ public class ReajusteSalarialController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> cadastrarFuncionario(@RequestBody FuncionarioRequest funcionarioRequest) {
+    public ResponseEntity<Long> cadastrarFuncionario(@Valid @RequestBody FuncionarioRequest funcionarioRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.cadastrarFuncionario(funcionarioRequest));
     }
 }
