@@ -1,6 +1,8 @@
 package com.gabrielluciano.reajustesalarial.error;
 
 import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
+import com.gabrielluciano.reajustesalarial.exceptions.FuncionarioNotFoundException;
+import com.gabrielluciano.reajustesalarial.exceptions.SalarioAlreadyReajustadoException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,32 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(ErrorResponse.builder()
                         .error(ex.getMessage())
                         .status(HttpStatus.CONFLICT.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @ExceptionHandler(FuncionarioNotFoundException.class)
+    protected ResponseEntity<ErrorResponse> handleFuncionarioNotFoundException(
+            FuncionarioNotFoundException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.builder()
+                        .error(ex.getMessage())
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @ExceptionHandler(SalarioAlreadyReajustadoException.class)
+    protected ResponseEntity<ErrorResponse> handleSalarioAlreadyReajustadoException(
+            SalarioAlreadyReajustadoException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.builder()
+                        .error(ex.getMessage())
+                        .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
                         .path(request.getRequestURI())
                         .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
                         .build());
