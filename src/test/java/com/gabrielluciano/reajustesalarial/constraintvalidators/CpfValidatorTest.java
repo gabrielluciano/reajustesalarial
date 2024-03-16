@@ -40,7 +40,6 @@ class CpfValidatorTest {
 
     @Test
     void givenCpfWithWrongVerifiers_whenIsValid_thenReturnFalse() {
-        // Numbers are valid but the format is not
         assertInvalidCpf("640.857.140-91");
         assertInvalidCpf("818.455.820-00");
         assertInvalidCpf("250.803.350-52");
