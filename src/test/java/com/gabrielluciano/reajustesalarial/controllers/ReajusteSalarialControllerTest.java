@@ -1,13 +1,18 @@
 package com.gabrielluciano.reajustesalarial.controllers;
 
 import com.gabrielluciano.reajustesalarial.dto.FuncionarioRequest;
+import com.gabrielluciano.reajustesalarial.dto.ImpostoRendaResponse;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteRequest;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteResponse;
 import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
 import com.gabrielluciano.reajustesalarial.exceptions.FuncionarioNotFoundException;
 import com.gabrielluciano.reajustesalarial.exceptions.SalarioAlreadyReajustadoException;
+import com.gabrielluciano.reajustesalarial.exceptions.SalarioNotReajustadoException;
+import com.gabrielluciano.reajustesalarial.models.Funcionario;
 import com.gabrielluciano.reajustesalarial.services.ReajusteSalarialService;
+import com.gabrielluciano.reajustesalarial.util.FuncionarioCreator;
 import com.gabrielluciano.reajustesalarial.util.FuncionarioRequestCreator;
+import com.gabrielluciano.reajustesalarial.util.ImpostoRendaResponseCreator;
 import com.gabrielluciano.reajustesalarial.util.ReajusteResponseCreator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,4 +92,41 @@ class ReajusteSalarialControllerTest {
         assertThrows(SalarioAlreadyReajustadoException.class, () ->
                 reajusteSalarialController.calcularReajuste(new ReajusteRequest(reajusteResponse.getCpf())));
     }
+
+    @Test
+    void givenCpf_WhenCalcularImpostoRenda_thenReturn200AndImpostoResponse() {
+        ImpostoRendaResponse impostoRendaResponse = ImpostoRendaResponseCreator.createValidImpostoRendaResponse();
+        when(reajusteSalarialService.calcularImpostoRenda(ArgumentMatchers.any()))
+                .thenReturn(impostoRendaResponse);
+
+        ResponseEntity<ImpostoRendaResponse> response = reajusteSalarialController
+                .calcularImpostoRenda(impostoRendaResponse.getCpf());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(impostoRendaResponse.getCpf(), response.getBody().getCpf());
+        assertEquals(impostoRendaResponse.getImposto(), response.getBody().getImposto());
+    }
+
+    @Test
+    void givenFuncionarioWithNotFoundCpf_WhenCalcularImpostoRenda_thenThrowsException() {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        when(reajusteSalarialService.calcularImpostoRenda(ArgumentMatchers.any()))
+                .thenThrow(new FuncionarioNotFoundException(funcionario.getCpf()));
+
+        assertThrows(FuncionarioNotFoundException.class, () ->
+                reajusteSalarialController.calcularImpostoRenda(funcionario.getCpf()));
+    }
+
+    @Test
+    void givenFuncionarioWithSalarioNotReajustado_WhenCalcularImpostoRenda_thenThrowsException() {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        funcionario.setSalarioReajustado(false);
+        when(reajusteSalarialService.calcularImpostoRenda(ArgumentMatchers.any()))
+                .thenThrow(new SalarioNotReajustadoException(funcionario.getCpf()));
+
+        assertThrows(SalarioNotReajustadoException.class, () ->
+                reajusteSalarialController.calcularImpostoRenda(funcionario.getCpf()));
+    }
+
 }
