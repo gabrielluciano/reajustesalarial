@@ -22,8 +22,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.math.BigDecimal;
 
 import static org.hamcrest.Matchers.matchesPattern;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -156,6 +155,60 @@ class ReajusteSalarialControllerIT {
         mockMvc.perform(put("/api/reajustesalarial")
                         .content(asJsonString(reajusteRequest))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void givenCpf_WhenCalcularImpostoRenda_thenReturn200AndIsentoImpostoRendaResponse() throws Exception {
+        String imposto = "Isento";
+
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        funcionario.setSalarioReajustado(true);
+        funcionario.setSalario(new BigDecimal("200.15"));
+        funcionario.setId(null);
+        funcionario.getEndereco().setId(null);
+        funcionarioRepository.save(funcionario);
+
+        mockMvc.perform(get("/api/reajustesalarial/" + funcionario.getCpf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.imposto").value(imposto))
+                .andExpect(jsonPath("$.cpf").value(funcionario.getCpf()));
+    }
+
+    @Test
+    void givenCpfNotFound_WhenCalcularImpostoRenda_thenReturn404() throws Exception {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        mockMvc.perform(get("/api/reajustesalarial/" + funcionario.getCpf()))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void givenCpfWithSalarioNotReajustado_WhenCalcularImpostoRenda_thenReturn422() throws Exception {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        funcionario.setSalarioReajustado(false);
+        funcionario.setSalario(new BigDecimal("200.15"));
+        funcionario.setId(null);
+        funcionario.getEndereco().setId(null);
+        funcionarioRepository.save(funcionario);
+
+        mockMvc.perform(get("/api/reajustesalarial/" + funcionario.getCpf()))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void givenInvalidCpf_WhenCalcularImpostoRenda_thenReturn400() throws Exception {
+        testCalcularImpostoRendaWithCpfAndExpectBadRequest("000.000.000-00");
+        testCalcularImpostoRendaWithCpfAndExpectBadRequest("00000000000");
+        testCalcularImpostoRendaWithCpfAndExpectBadRequest("123.456.789-00");
+        testCalcularImpostoRendaWithCpfAndExpectBadRequest("55158324000");
+    }
+
+    private void testCalcularImpostoRendaWithCpfAndExpectBadRequest(String cpf) throws Exception {
+        mockMvc.perform(get("/api/reajustesalarial/" + cpf))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }

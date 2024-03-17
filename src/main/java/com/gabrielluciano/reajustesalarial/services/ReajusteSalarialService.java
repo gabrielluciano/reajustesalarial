@@ -1,6 +1,7 @@
 package com.gabrielluciano.reajustesalarial.services;
 
 import com.gabrielluciano.reajustesalarial.dto.FuncionarioRequest;
+import com.gabrielluciano.reajustesalarial.dto.ImpostoRendaResponse;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteRequest;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteResponse;
 
@@ -21,4 +22,12 @@ public interface ReajusteSalarialService {
      * @return ReajusteResponse contendo o cpf, percentual de reajuste, valor de reajuste e novo salário do funcionário
      */
     ReajusteResponse calcularReajuste(ReajusteRequest reajusteRequest);
+
+    /**
+     * Calcula o imposto de renda para um funcionário que já recebeu reajuste
+     *
+     * @param cpf CPF do funcionário
+     * @return ImpostoRendaResponse contento o cpf e o valor do imposto de renda a ser pago pelo funcionário
+     */
+    ImpostoRendaResponse calcularImpostoRenda(String cpf);
 }

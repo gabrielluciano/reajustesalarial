@@ -1,14 +1,17 @@
 package com.gabrielluciano.reajustesalarial.services;
 
 import com.gabrielluciano.reajustesalarial.dto.FuncionarioRequest;
+import com.gabrielluciano.reajustesalarial.dto.ImpostoRendaResponse;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteRequest;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteResponse;
 import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
 import com.gabrielluciano.reajustesalarial.exceptions.FuncionarioNotFoundException;
 import com.gabrielluciano.reajustesalarial.exceptions.SalarioAlreadyReajustadoException;
+import com.gabrielluciano.reajustesalarial.exceptions.SalarioNotReajustadoException;
 import com.gabrielluciano.reajustesalarial.models.Funcionario;
 import com.gabrielluciano.reajustesalarial.repositories.FuncionarioRepository;
-import com.gabrielluciano.reajustesalarial.strategies.ReajusteSalarialProcessor;
+import com.gabrielluciano.reajustesalarial.strategies.impostorenda.ImpostoRendaCalculator;
+import com.gabrielluciano.reajustesalarial.strategies.reajustesalarial.ReajusteSalarialProcessor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -61,5 +64,19 @@ public class ReajusteSalarialServiceImpl implements ReajusteSalarialService {
         reajusteResponse.setValorReajuste(processor.getValorReajuste(salarioAtual));
         reajusteResponse.setPercentualReajuste(processor.getPercentualReajuste());
         return reajusteResponse;
+    }
+
+    @Override
+    public ImpostoRendaResponse calcularImpostoRenda(String cpf) {
+        Funcionario funcionario = funcionarioRepository.findByCpf(cpf)
+                .orElseThrow(() -> new FuncionarioNotFoundException(cpf));
+
+        if (!funcionario.isSalarioReajustado())
+            throw new SalarioNotReajustadoException(cpf);
+
+        ImpostoRendaCalculator impostoRendaCalculator = new ImpostoRendaCalculator();
+        String imposto = impostoRendaCalculator.calcularImposto(funcionario.getSalario());
+
+        return new ImpostoRendaResponse(cpf, imposto);
     }
 }

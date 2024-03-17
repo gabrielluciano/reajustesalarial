@@ -3,6 +3,7 @@ package com.gabrielluciano.reajustesalarial.error;
 import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
 import com.gabrielluciano.reajustesalarial.exceptions.FuncionarioNotFoundException;
 import com.gabrielluciano.reajustesalarial.exceptions.SalarioAlreadyReajustadoException;
+import com.gabrielluciano.reajustesalarial.exceptions.SalarioNotReajustadoException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,12 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
 
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -61,6 +65,32 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(SalarioNotReajustadoException.class)
+    protected ResponseEntity<ErrorResponse> handleSalarioNotReajustadoException(
+            SalarioNotReajustadoException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.builder()
+                        .error(ex.getMessage())
+                        .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConstraintViolationException(
+            ConstraintViolationException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.builder()
+                        .error(convertConstraintViolationsToString(ex.getConstraintViolations()))
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatus status,
@@ -97,6 +127,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         int i = 0;
         for (FieldError fieldError : fieldErrors) {
             errors[i] = String.format("%s: %s", fieldError.getField(), fieldError.getDefaultMessage());
+            i++;
+        }
+        return "Constraint Violation(s): " + String.join(", ", errors);
+    }
+
+    private String convertConstraintViolationsToString(Set<ConstraintViolation<?>> violations) {
+        String[] errors = new String[violations.size()];
+        int i = 0;
+        for (ConstraintViolation<?> violation : violations) {
+            errors[i] = String.format("%s: %s", violation.getPropertyPath(), violation.getMessage());
             i++;
         }
         return "Constraint Violation(s): " + String.join(", ", errors);

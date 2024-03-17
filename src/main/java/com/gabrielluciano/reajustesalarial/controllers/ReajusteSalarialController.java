@@ -1,17 +1,21 @@
 package com.gabrielluciano.reajustesalarial.controllers;
 
 import com.gabrielluciano.reajustesalarial.dto.FuncionarioRequest;
+import com.gabrielluciano.reajustesalarial.dto.ImpostoRendaResponse;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteRequest;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteResponse;
 import com.gabrielluciano.reajustesalarial.services.ReajusteSalarialService;
+import com.gabrielluciano.reajustesalarial.util.constraintvalidators.CpfConstraint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/reajustesalarial")
+@Validated
 public class ReajusteSalarialController {
 
     private final ReajusteSalarialService service;
@@ -28,5 +32,10 @@ public class ReajusteSalarialController {
     @PutMapping
     public ResponseEntity<ReajusteResponse> calcularReajuste(@Valid @RequestBody ReajusteRequest reajusteRequest) {
         return ResponseEntity.ok(service.calcularReajuste(reajusteRequest));
+    }
+
+    @GetMapping("/{cpf}")
+    public ResponseEntity<ImpostoRendaResponse> calcularImpostoRenda(@PathVariable @CpfConstraint String cpf) {
+        return ResponseEntity.ok(service.calcularImpostoRenda(cpf));
     }
 }
