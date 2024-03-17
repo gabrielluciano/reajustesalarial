@@ -1,26 +1,11 @@
 package com.gabrielluciano.reajustesalarial.strategies.reajustesalarial;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
-public class BaixoMedioRangeSalarialReajusteStrategy implements ReajusteSalarialStrategy {
-
-    private static final double percentualReajuste = 12;
+public class BaixoMedioRangeSalarialReajusteStrategy extends BaseRangeSalarialReajusteStrategy {
 
     @Override
-    public String getPercentualReajuste() {
-        return String.format("%d%%", (int) percentualReajuste);
-    }
-
-    @Override
-    public BigDecimal getNovoSalario(BigDecimal salarioAtual) {
-        return salarioAtual.add(getValorReajuste(salarioAtual))
-                .setScale(2, RoundingMode.FLOOR);
-    }
-
-    @Override
-    public BigDecimal getValorReajuste(BigDecimal salarioAtual) {
-        return salarioAtual.multiply(BigDecimal.valueOf(percentualReajuste / 100.0))
-                .setScale(2, RoundingMode.FLOOR);
+    protected BigDecimal getTaxa() {
+        return new BigDecimal("0.12");
     }
 }
