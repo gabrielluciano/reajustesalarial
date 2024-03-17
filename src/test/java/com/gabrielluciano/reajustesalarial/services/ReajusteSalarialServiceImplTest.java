@@ -1,11 +1,13 @@
 package com.gabrielluciano.reajustesalarial.services;
 
 import com.gabrielluciano.reajustesalarial.dto.FuncionarioRequest;
+import com.gabrielluciano.reajustesalarial.dto.ImpostoRendaResponse;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteRequest;
 import com.gabrielluciano.reajustesalarial.dto.ReajusteResponse;
 import com.gabrielluciano.reajustesalarial.exceptions.DuplicatedCpfException;
 import com.gabrielluciano.reajustesalarial.exceptions.FuncionarioNotFoundException;
 import com.gabrielluciano.reajustesalarial.exceptions.SalarioAlreadyReajustadoException;
+import com.gabrielluciano.reajustesalarial.exceptions.SalarioNotReajustadoException;
 import com.gabrielluciano.reajustesalarial.models.Funcionario;
 import com.gabrielluciano.reajustesalarial.repositories.FuncionarioRepository;
 import com.gabrielluciano.reajustesalarial.util.FuncionarioCreator;
@@ -212,5 +214,102 @@ class ReajusteSalarialServiceImplTest {
         assertEquals(valorReajuste, reajusteResponse.getValorReajuste());
         assertEquals(percentualReajuste, reajusteResponse.getPercentualReajuste());
         assertEquals(funcionario.getCpf(), reajusteResponse.getCpf());
+    }
+
+    @Test
+    void givenFuncionarioWithNotFoundCpf_whenCalcularImpostoRenda_thenThrowsException() {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(FuncionarioNotFoundException.class, () -> reajusteSalarialService
+                .calcularImpostoRenda(funcionario.getCpf()));
+    }
+
+    @Test
+    void givenFuncionarioWithSalarioNotReajustado_whenCalcularImpostoRenda_thenThrowsException() {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        funcionario.setSalarioReajustado(false);
+        when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
+                .thenReturn(Optional.of(funcionario));
+
+        assertThrows(SalarioNotReajustadoException.class, () -> reajusteSalarialService
+                .calcularImpostoRenda(funcionario.getCpf()));
+    }
+
+    @Test
+    void givenFuncionarioWithSalarioBetween0And2000dot00_whenCalcularImpostoRenda_thenExpectIsento() {
+        BigDecimal salario = new BigDecimal("200.15");
+        String imposto = "Isento";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+
+        salario = new BigDecimal("2000.00");
+        imposto = "Isento";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+    }
+
+    @Test
+    void givenFuncionarioWithSalarioBetween2000dot01And3000dot00_whenCalcularImpostoRenda_thenExpect8percent() {
+        BigDecimal salario = new BigDecimal("2500.75");
+        String imposto = "Imposto: R$ 40.06";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+
+        salario = new BigDecimal("2000.01");
+        imposto = "Imposto: R$ 0.00";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+
+        salario = new BigDecimal("3000.00");
+        imposto = "Imposto: R$ 80.00";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+    }
+
+    @Test
+    void givenFuncionarioWithSalarioBetween3000dot01And4500dot00_whenCalcularImpostoRenda_thenExpect18percent() {
+        BigDecimal salario = new BigDecimal("3002.00");
+        String imposto = "Imposto: R$ 80.36";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+
+        salario = new BigDecimal("3000.01");
+        imposto = "Imposto: R$ 80.00";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+
+        salario = new BigDecimal("4500.00");
+        imposto = "Imposto: R$ 350.00";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+    }
+
+    @Test
+    void givenFuncionarioWithSalarioHigherThan4500dot00_whenCalcularImpostoRenda_thenExpect28percent() {
+        BigDecimal salario = new BigDecimal("4571.23");
+        String imposto = "Imposto: R$ 369.94";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+
+        salario = new BigDecimal("4500.01");
+        imposto = "Imposto: R$ 350.00";
+
+        testCalcularImpostoRendaAndExpect(salario, imposto);
+    }
+
+    private void testCalcularImpostoRendaAndExpect(BigDecimal salario, String imposto) {
+        Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
+        funcionario.setSalarioReajustado(true);
+        funcionario.setSalario(salario);
+        when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
+                .thenReturn(Optional.of(funcionario));
+
+        ImpostoRendaResponse impostoRendaResponse = reajusteSalarialService
+                .calcularImpostoRenda(funcionario.getCpf());
+
+        assertEquals(imposto, impostoRendaResponse.getImposto());
+        assertEquals(funcionario.getCpf(), impostoRendaResponse.getCpf());
     }
 }

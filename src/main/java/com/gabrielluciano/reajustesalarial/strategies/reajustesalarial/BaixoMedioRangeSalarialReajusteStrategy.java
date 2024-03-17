@@ -1,4 +1,4 @@
-package com.gabrielluciano.reajustesalarial.strategies;
+package com.gabrielluciano.reajustesalarial.strategies.reajustesalarial;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

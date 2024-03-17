@@ -1,11 +1,11 @@
-package com.gabrielluciano.reajustesalarial.strategies;
+package com.gabrielluciano.reajustesalarial.strategies.reajustesalarial;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class BaixoRangeSalarialReajusteStrategy implements ReajusteSalarialStrategy {
+public class MedioAltoRangeSalarialReajusteStrategy implements ReajusteSalarialStrategy {
 
-    private static final double percentualReajuste = 15;
+    private static final double percentualReajuste = 7;
 
     @Override
     public String getPercentualReajuste() {
