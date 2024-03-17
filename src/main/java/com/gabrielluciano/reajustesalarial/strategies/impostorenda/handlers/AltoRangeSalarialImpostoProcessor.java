@@ -1,7 +1,5 @@
 package com.gabrielluciano.reajustesalarial.strategies.impostorenda.handlers;
 
-import com.gabrielluciano.reajustesalarial.strategies.impostorenda.handlers.AbstractImpostoRendaProcessor;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
