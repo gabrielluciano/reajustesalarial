@@ -10,12 +10,12 @@ public class MedioRangeSalarialImpostoProcessor extends AbstractRangeSalarialImp
     }
 
     @Override
-    protected BigDecimal getRangeInferior() {
+    protected BigDecimal getLimiteInferior() {
         return new BigDecimal("3000.00");
     }
 
     @Override
-    protected BigDecimal getRangeSuperior() {
+    protected BigDecimal getLimiteSuperior() {
         return new BigDecimal("4500.00");
     }
 }

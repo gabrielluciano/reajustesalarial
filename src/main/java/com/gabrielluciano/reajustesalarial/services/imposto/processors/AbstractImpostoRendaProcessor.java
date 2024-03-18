@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public abstract class AbstractImpostoRendaProcessor {
 
-    public AbstractImpostoRendaProcessor nextProcessor;
+    protected AbstractImpostoRendaProcessor nextProcessor;
 
     public abstract String calcularImposto(BigDecimal impostoAgregado, BigDecimal salario);
 

@@ -6,11 +6,11 @@ import static com.gabrielluciano.reajustesalarial.util.bigdecimal.BigDecimalComp
 
 public class BaixoRangeSalarialImpostoProcessor extends AbstractImpostoRendaProcessor {
 
-    private static final BigDecimal rangeSuperior = new BigDecimal("2000.00");
+    private static final BigDecimal limiteSuperior = new BigDecimal("2000.00");
 
     @Override
     public String calcularImposto(BigDecimal impostoAgregado, BigDecimal salario) {
-        if (lessOrEqualThan(salario, rangeSuperior) || nextProcessor == null)
+        if (lessOrEqualThan(salario, limiteSuperior) || nextProcessor == null)
             return "Isento";
         return nextProcessor.calcularImposto(impostoAgregado, salario);
     }

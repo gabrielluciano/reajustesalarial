@@ -1,5 +1,7 @@
 package com.gabrielluciano.reajustesalarial.services.imposto.processors;
 
+import com.gabrielluciano.reajustesalarial.exceptions.InvalidProcessorException;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -9,34 +11,33 @@ import static com.gabrielluciano.reajustesalarial.util.bigdecimal.BigDecimalComp
 public abstract class AbstractRangeSalarialImpostoProcessor extends AbstractImpostoRendaProcessor {
 
     private final BigDecimal taxa;
-    private final BigDecimal rangeInferior;
-    private final BigDecimal rangeSuperior;
+    private final BigDecimal limiteInferior;
+    private final BigDecimal limiteSuperior;
 
-
-    public AbstractRangeSalarialImpostoProcessor() {
+    protected AbstractRangeSalarialImpostoProcessor() {
         taxa = getTaxa();
-        rangeInferior = getRangeInferior();
-        rangeSuperior = getRangeSuperior();
+        limiteInferior = getLimiteInferior();
+        limiteSuperior = getLimiteSuperior();
     }
 
     protected abstract BigDecimal getTaxa();
 
-    protected abstract BigDecimal getRangeInferior();
+    protected abstract BigDecimal getLimiteInferior();
 
-    protected abstract BigDecimal getRangeSuperior();
+    protected abstract BigDecimal getLimiteSuperior();
 
     @Override
     public String calcularImposto(BigDecimal impostoAgregado, BigDecimal salario) {
-        if (lessOrEqualThan(salario, rangeInferior))
-            throw new RuntimeException("Salário inválido para este processor");
+        if (lessOrEqualThan(salario, limiteInferior))
+            throw new InvalidProcessorException("Salário inferior ao limite inferior");
 
         BigDecimal imposto;
-        if (greaterThan(salario, rangeSuperior)) {
-            imposto = rangeSuperior.subtract(rangeInferior).multiply(taxa);
+        if (greaterThan(salario, limiteSuperior)) {
+            imposto = limiteSuperior.subtract(limiteInferior).multiply(taxa);
             if (nextProcessor != null)
                 return nextProcessor.calcularImposto(impostoAgregado.add(imposto), salario);
         } else {
-            imposto = impostoAgregado.add(salario.subtract(rangeInferior).multiply(taxa));
+            imposto = impostoAgregado.add(salario.subtract(limiteInferior).multiply(taxa));
         }
 
         return String.format("Imposto: R$ %s", imposto.setScale(2, RoundingMode.FLOOR));
