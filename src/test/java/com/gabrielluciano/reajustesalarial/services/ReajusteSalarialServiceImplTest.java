@@ -70,9 +70,10 @@ class ReajusteSalarialServiceImplTest {
         Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
         when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.empty());
+        ReajusteRequest reajusteRequest = new ReajusteRequest(funcionario.getCpf());
 
         assertThrows(FuncionarioNotFoundException.class, () -> reajusteSalarialService
-                .calcularReajuste(new ReajusteRequest(funcionario.getCpf())));
+                .calcularReajuste(reajusteRequest));
     }
 
     @Test
@@ -81,9 +82,10 @@ class ReajusteSalarialServiceImplTest {
         funcionario.setSalarioReajustado(true);
         when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.of(funcionario));
+        ReajusteRequest reajusteRequest = new ReajusteRequest(funcionario.getCpf());
 
         assertThrows(SalarioAlreadyReajustadoException.class, () -> reajusteSalarialService
-                .calcularReajuste(new ReajusteRequest(funcionario.getCpf())));
+                .calcularReajuste(reajusteRequest));
     }
 
     @Test
@@ -221,9 +223,10 @@ class ReajusteSalarialServiceImplTest {
         Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
         when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.empty());
+        String cpf = funcionario.getCpf();
 
         assertThrows(FuncionarioNotFoundException.class, () -> reajusteSalarialService
-                .calcularImpostoRenda(funcionario.getCpf()));
+                .calcularImpostoRenda(cpf));
     }
 
     @Test
@@ -232,9 +235,10 @@ class ReajusteSalarialServiceImplTest {
         funcionario.setSalarioReajustado(false);
         when(funcionarioRepository.findByCpf(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.of(funcionario));
+        String cpf = funcionario.getCpf();
 
         assertThrows(SalarioNotReajustadoException.class, () -> reajusteSalarialService
-                .calcularImpostoRenda(funcionario.getCpf()));
+                .calcularImpostoRenda(cpf));
     }
 
     @Test

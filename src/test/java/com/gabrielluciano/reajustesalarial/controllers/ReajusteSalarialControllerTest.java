@@ -78,9 +78,10 @@ class ReajusteSalarialControllerTest {
         ReajusteResponse reajusteResponse = ReajusteResponseCreator.createValidReajusteResponse();
         when(reajusteSalarialService.calcularReajuste(ArgumentMatchers.any()))
                 .thenThrow(new FuncionarioNotFoundException(reajusteResponse.getCpf()));
+        ReajusteRequest reajusteRequest = new ReajusteRequest(reajusteResponse.getCpf());
 
         assertThrows(FuncionarioNotFoundException.class, () ->
-                reajusteSalarialController.calcularReajuste(new ReajusteRequest(reajusteResponse.getCpf())));
+                reajusteSalarialController.calcularReajuste(reajusteRequest));
     }
 
     @Test
@@ -88,9 +89,10 @@ class ReajusteSalarialControllerTest {
         ReajusteResponse reajusteResponse = ReajusteResponseCreator.createValidReajusteResponse();
         when(reajusteSalarialService.calcularReajuste(ArgumentMatchers.any()))
                 .thenThrow(new SalarioAlreadyReajustadoException(reajusteResponse.getCpf()));
+        ReajusteRequest reajusteRequest = new ReajusteRequest(reajusteResponse.getCpf());
 
         assertThrows(SalarioAlreadyReajustadoException.class, () ->
-                reajusteSalarialController.calcularReajuste(new ReajusteRequest(reajusteResponse.getCpf())));
+                reajusteSalarialController.calcularReajuste(reajusteRequest));
     }
 
     @Test
@@ -113,9 +115,10 @@ class ReajusteSalarialControllerTest {
         Funcionario funcionario = FuncionarioCreator.createValidFuncionario();
         when(reajusteSalarialService.calcularImpostoRenda(ArgumentMatchers.any()))
                 .thenThrow(new FuncionarioNotFoundException(funcionario.getCpf()));
+        String cpf = funcionario.getCpf();
 
         assertThrows(FuncionarioNotFoundException.class, () ->
-                reajusteSalarialController.calcularImpostoRenda(funcionario.getCpf()));
+                reajusteSalarialController.calcularImpostoRenda(cpf));
     }
 
     @Test
@@ -124,9 +127,10 @@ class ReajusteSalarialControllerTest {
         funcionario.setSalarioReajustado(false);
         when(reajusteSalarialService.calcularImpostoRenda(ArgumentMatchers.any()))
                 .thenThrow(new SalarioNotReajustadoException(funcionario.getCpf()));
+        String cpf = funcionario.getCpf();
 
         assertThrows(SalarioNotReajustadoException.class, () ->
-                reajusteSalarialController.calcularImpostoRenda(funcionario.getCpf()));
+                reajusteSalarialController.calcularImpostoRenda(cpf));
     }
 
 }
