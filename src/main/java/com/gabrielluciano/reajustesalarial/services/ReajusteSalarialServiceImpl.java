@@ -14,6 +14,7 @@ import com.gabrielluciano.reajustesalarial.services.imposto.ImpostoRendaService;
 import com.gabrielluciano.reajustesalarial.services.reajuste.context.ReajusteSalarialContext;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,6 +32,7 @@ public class ReajusteSalarialServiceImpl implements ReajusteSalarialService {
     }
 
     @Override
+    @Transactional
     public long cadastrarFuncionario(FuncionarioRequest funcionarioRequest) {
         Optional<Funcionario> optionalFuncionario = funcionarioRepository.findByCpf(funcionarioRequest.getCpf());
         if (optionalFuncionario.isPresent())
@@ -42,6 +44,7 @@ public class ReajusteSalarialServiceImpl implements ReajusteSalarialService {
     }
 
     @Override
+    @Transactional
     public ReajusteResponse calcularReajuste(ReajusteRequest reajusteRequest) {
         Funcionario funcionario = funcionarioRepository.findByCpf(reajusteRequest.getCpf())
                 .orElseThrow(() -> new FuncionarioNotFoundException(reajusteRequest.getCpf()));
