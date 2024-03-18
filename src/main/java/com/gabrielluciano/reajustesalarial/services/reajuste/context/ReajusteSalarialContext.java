@@ -1,18 +1,20 @@
-package com.gabrielluciano.reajustesalarial.strategies.reajustesalarial;
+package com.gabrielluciano.reajustesalarial.services.reajuste.context;
+
+import com.gabrielluciano.reajustesalarial.services.reajuste.strategies.*;
 
 import java.math.BigDecimal;
 
 import static com.gabrielluciano.reajustesalarial.util.bigdecimal.BigDecimalComparison.lessOrEqualThan;
 
-public class ReajusteSalarialProcessor implements ReajusteSalarialStrategy {
+public class ReajusteSalarialContext implements ReajusteSalarialStrategy {
 
     private ReajusteSalarialStrategy strategy;
 
-    private ReajusteSalarialProcessor(ReajusteSalarialStrategy strategy) {
+    private ReajusteSalarialContext(ReajusteSalarialStrategy strategy) {
         this.strategy = strategy;
     }
 
-    public static ReajusteSalarialProcessor fromSalario(BigDecimal salario) {
+    public static ReajusteSalarialContext fromSalario(BigDecimal salario) {
         ReajusteSalarialStrategy strategy;
         if (lessOrEqualThan(salario, new BigDecimal("400.00"))) {
             strategy = new BaixoRangeSalarialReajusteStrategy();
@@ -25,7 +27,7 @@ public class ReajusteSalarialProcessor implements ReajusteSalarialStrategy {
         } else {
             strategy = new AltoRangeSalarialReajusteStrategy();
         }
-        return new ReajusteSalarialProcessor(strategy);
+        return new ReajusteSalarialContext(strategy);
     }
 
     @Override

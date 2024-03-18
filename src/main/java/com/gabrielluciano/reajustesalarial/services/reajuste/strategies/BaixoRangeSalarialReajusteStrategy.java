@@ -1,4 +1,4 @@
-package com.gabrielluciano.reajustesalarial.strategies.reajustesalarial;
+package com.gabrielluciano.reajustesalarial.services.reajuste.strategies;
 
 import java.math.BigDecimal;
 

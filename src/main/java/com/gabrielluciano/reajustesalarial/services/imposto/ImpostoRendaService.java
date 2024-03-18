@@ -1,14 +1,14 @@
-package com.gabrielluciano.reajustesalarial.strategies.impostorenda;
+package com.gabrielluciano.reajustesalarial.services.imposto;
 
-import com.gabrielluciano.reajustesalarial.strategies.impostorenda.handlers.*;
+import com.gabrielluciano.reajustesalarial.services.imposto.processors.*;
 
 import java.math.BigDecimal;
 
-public class ImpostoRendaCalculator {
+public class ImpostoRendaService {
 
     private final AbstractImpostoRendaProcessor processor;
 
-    public ImpostoRendaCalculator() {
+    public ImpostoRendaService() {
         BaixoRangeSalarialImpostoProcessor processor1 = new BaixoRangeSalarialImpostoProcessor();
         BaixoMedioRangeSalarialImpostoProcessor processor2 = new BaixoMedioRangeSalarialImpostoProcessor();
         MedioRangeSalarialImpostoProcessor processor3 = new MedioRangeSalarialImpostoProcessor();

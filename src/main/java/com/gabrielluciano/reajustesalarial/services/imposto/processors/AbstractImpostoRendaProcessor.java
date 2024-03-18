@@ -1,4 +1,4 @@
-package com.gabrielluciano.reajustesalarial.strategies.impostorenda.handlers;
+package com.gabrielluciano.reajustesalarial.services.imposto.processors;
 
 import java.math.BigDecimal;
 

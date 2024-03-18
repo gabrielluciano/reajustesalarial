@@ -10,8 +10,8 @@ import com.gabrielluciano.reajustesalarial.exceptions.SalarioAlreadyReajustadoEx
 import com.gabrielluciano.reajustesalarial.exceptions.SalarioNotReajustadoException;
 import com.gabrielluciano.reajustesalarial.models.Funcionario;
 import com.gabrielluciano.reajustesalarial.repositories.FuncionarioRepository;
-import com.gabrielluciano.reajustesalarial.strategies.impostorenda.ImpostoRendaCalculator;
-import com.gabrielluciano.reajustesalarial.strategies.reajustesalarial.ReajusteSalarialProcessor;
+import com.gabrielluciano.reajustesalarial.services.imposto.ImpostoRendaService;
+import com.gabrielluciano.reajustesalarial.services.reajuste.context.ReajusteSalarialContext;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -49,10 +49,10 @@ public class ReajusteSalarialServiceImpl implements ReajusteSalarialService {
         if (funcionario.isSalarioReajustado())
             throw new SalarioAlreadyReajustadoException(funcionario.getCpf());
 
-        ReajusteSalarialProcessor processor = ReajusteSalarialProcessor.fromSalario(funcionario.getSalario());
+        ReajusteSalarialContext context = ReajusteSalarialContext.fromSalario(funcionario.getSalario());
 
         BigDecimal salarioAtual = funcionario.getSalario();
-        BigDecimal novoSalario = processor.getNovoSalario(salarioAtual);
+        BigDecimal novoSalario = context.getNovoSalario(salarioAtual);
 
         funcionario.setSalario(novoSalario);
         funcionario.setSalarioReajustado(true);
@@ -61,8 +61,8 @@ public class ReajusteSalarialServiceImpl implements ReajusteSalarialService {
         ReajusteResponse reajusteResponse = new ReajusteResponse();
         reajusteResponse.setCpf(funcionario.getCpf());
         reajusteResponse.setNovoSalario(novoSalario);
-        reajusteResponse.setValorReajuste(processor.getValorReajuste(salarioAtual));
-        reajusteResponse.setPercentualReajuste(processor.getPercentualReajuste());
+        reajusteResponse.setValorReajuste(context.getValorReajuste(salarioAtual));
+        reajusteResponse.setPercentualReajuste(context.getPercentualReajuste());
         return reajusteResponse;
     }
 
@@ -74,7 +74,7 @@ public class ReajusteSalarialServiceImpl implements ReajusteSalarialService {
         if (!funcionario.isSalarioReajustado())
             throw new SalarioNotReajustadoException(cpf);
 
-        ImpostoRendaCalculator impostoRendaCalculator = new ImpostoRendaCalculator();
+        ImpostoRendaService impostoRendaCalculator = new ImpostoRendaService();
         String imposto = impostoRendaCalculator.calcularImposto(funcionario.getSalario());
 
         return new ImpostoRendaResponse(cpf, imposto);
