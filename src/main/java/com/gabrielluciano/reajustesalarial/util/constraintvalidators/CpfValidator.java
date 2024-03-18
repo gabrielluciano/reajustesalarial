@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class CpfValidator implements ConstraintValidator<CpfConstraint, String> {
 
-    public static final Pattern validFormatPattern = Pattern.compile("([0-9]{3}[.][0-9]{3}[.][0-9]{3}-[0-9]{2})");
+    public static final Pattern validFormatPattern = Pattern.compile("(\\d{3}[.]\\d{3}[.]\\d{3}-\\d{2})");
     public static final Pattern sameDigitsPattern = Pattern.compile("^(\\d)\\1{2}\\.\\1{3}\\.\\1{3}-\\1{2}$");
 
     @Override
