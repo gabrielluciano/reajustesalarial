@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 
 public class BigDecimalComparison {
 
+    private BigDecimalComparison() {
+    }
+
     public static boolean lessOrEqualThan(BigDecimal num1, BigDecimal num2) {
         return num1.compareTo(num2) <= 0;
     }
