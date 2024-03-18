@@ -7,7 +7,7 @@ public abstract class BaseRangeSalarialReajusteStrategy implements ReajusteSalar
 
     protected final BigDecimal taxa;
 
-    public BaseRangeSalarialReajusteStrategy() {
+    protected BaseRangeSalarialReajusteStrategy() {
         this.taxa = getTaxa();
     }
 
