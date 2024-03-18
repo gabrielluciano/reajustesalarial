@@ -83,13 +83,31 @@ Para executar o projeto, você deve ter o Java JDK na versão 8, o gerenciador d
 ```
 POST /api/reajustesalarial
 
-    Cria um novo funcionário
+    Cria um novo funcionário e retorna o id do funcionário criado
 
     Status de retorno:
         201 (CREATED) - Funcionário criado com sucesso
         400 (BAD_REQUEST) - Request mal formatada
         409 (CONFLICT) - Funcionário com o CPF já existe
 
+    Exemplo de corpo da requisição:
+
+    {
+      "nome": "John Doe",
+      "cpf": "640.934.940-88",
+      "telefone": "+1 555-123-4567",
+      "dataNascimento": "1990-05-15",
+      "salario": 800.14,
+      "endereco": {
+        "pais": "Brazil",
+        "estado": "São Paulo",
+        "cidade": "São Paulo",
+        "logradouro": "123 Main Street",
+        "numero": "456",
+        "cep": "12345-678",
+        "complemento": "Apt 101"
+      }
+    }
 ```
 
 ```
@@ -102,6 +120,21 @@ PUT /api/reajustesalarial
         400 (BAD_REQUEST) - Request mal formatada
         404 (NOT_FOUND) - Funcionário com o CPF não encontrado 
         422 (UNPROCESSABLE_ENTITY) - Salário do funcionário já foi reajustado 
+
+    Exemplo de corpo da requisição:
+
+    {
+      "cpf": "640.934.940-88"
+    }
+
+    Exemplo de corpo da resposta:
+
+    {
+      "cpf": "640.934.940-88",
+      "novoSalario": 880.15,
+      "valorReajuste": 80.01,
+      "percentualReajuste": "10%"
+    }
 ```
 
 ```
@@ -114,4 +147,16 @@ GET /api/reajustesalarial/{cpf}
         400 (BAD_REQUEST) - CPF com formato incorreto 
         404 (NOT_FOUND) - Funcionário com o CPF não encontrado 
         422 (UNPROCESSABLE_ENTITY) - Salário do funcionário ainda não foi reajustado para calcular o imposto 
+
+    Exemplos de corpo da resposta:
+
+    {
+      "cpf": "640.934.940-88",
+      "imposto": "Isento"
+    }
+
+    {
+      "cpf": "707.203.970-81",
+      "imposto": "Imposto: R$ 193.37"
+    }
 ```
